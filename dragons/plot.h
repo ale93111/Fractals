@@ -23,14 +23,7 @@ namespace plt
 		Py_SetProgramName(name);
 		Py_Initialize();
 
-		PyObject* pyplotname = PyString_FromString("matplotlib.pyplot");
-	 	PyObject* pylabname = PyString_FromString("pylab");
-
-	 	PyObject* pymod = PyImport_Import(pyplotname);
-	 	Py_DECREF(pyplotname);
-
-	 	PyObject* pylabmod = PyImport_Import(pylabname);
-		Py_DECREF(pylabname);
+	 	PyObject* pymod =  PyImport_ImportModule("matplotlib.pyplot");
 
 		python_function_show   = PyObject_GetAttrString(pymod, "show");
 		python_function_plot   = PyObject_GetAttrString(pymod, "plot");
@@ -39,6 +32,7 @@ namespace plt
 		python_function_imsave = PyObject_GetAttrString(pymod, "imsave");
 
 		import_array();
+
 	}
 
 	void figure(int a, int b)
@@ -68,16 +62,13 @@ namespace plt
 		PyTuple_SetItem(args, 0, pyfilename);
 		PyTuple_SetItem(args, 1, a);
 
-		//PyObject* kwargs = PyDict_New();
-		//PyDict_SetItemString(kwargs, "figsize", PyLong_FromLong(600));
-
 		PyObject* res = PyObject_CallObject(python_function_imsave, args);//, kwargs);
 
 		//Py_DECREF(kwargs);
-		Py_DECREF(pyfilename);
-		Py_DECREF(args);
-		Py_DECREF(res);
-}
+		//Py_DECREF(pyfilename);
+		//Py_DECREF(args);
+		//Py_DECREF(res);
+	}
 
 	bool plot(PyObject *a, PyObject *b, const std::string& s = "")
 	{
