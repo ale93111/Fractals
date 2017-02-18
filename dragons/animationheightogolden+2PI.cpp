@@ -9,9 +9,9 @@
 #define SCALA 1.5f
 
 bool gen = false;
-int width = 720; 
-int height = 720;
-int iterations = 6;
+int width = 512; 
+int height = 512;
+int iterations = 200;
 
 GLdouble minX = -1.5f, maxX = 1.5f, minY = -1.7f, maxY = 1.3f; // complex plane boundaries
 
