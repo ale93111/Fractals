@@ -1,0 +1,72 @@
+#version 150 core
+
+in vec2 initial_pos;
+in float izoom;	
+in vec2  ioffset;
+in vec2  iResolution;
+
+out vec4 totcolor;
+
+const int Nperiodic = 12;
+const int max_iterations = 300;
+int S[Nperiodic] = int[](1,1,1,1,1,1,0,0,0,0,0,0);	
+
+vec2 posta = vec2(0.0);
+
+int AA = 4; 
+vec3 tot   = vec3( 0.0 ); 
+
+void main(void)
+{
+	for( int jj=0; jj<AA; jj++ )
+    for( int ii=0; ii<AA; ii++ )  
+	{
+		float X = 0.5;
+	
+		float templog = 0.0;	
+		float lambda  = 0.0;
+	
+		posta = (((gl_FragCoord.xy + vec2(float(ii),float(jj))/float(AA)) / iResolution.y) * izoom) + ioffset;
+		
+		for (int i=0; i<max_iterations; i++ ) 	
+		{	
+			for(int j=0; j<6; j++) 
+			{
+				X = posta.x*X*(1.0 - X); 
+				templog += log( abs( posta.x*(1.0 - 2.0*X)));
+			}
+			for(int j=0; j<6; j++) 
+			{
+				X = posta.y*X*(1.0 - X); 
+				templog += log( abs( posta.y*(1.0 - 2.0*X)));
+			}
+
+		} 	
+
+		
+		lambda = templog/(max_iterations*Nperiodic);
+	
+		vec3 col = vec3 (0.0);
+	
+		if (lambda < 0.0) 
+		{
+			lambda = abs(lambda);
+ 
+			lambda = clamp( lambda, 0.0, 1.0); 	
+			lambda = pow (lambda, 0.25);	
+			col = vec3 (1.0, lambda, 0.0);
+		}
+		else
+		{
+			lambda = abs(lambda);
+		
+			lambda = clamp( lambda, 0.0, 1.0); 	
+			lambda = pow (lambda, 0.25);	
+			col = vec3 (0.5, 0.5, lambda);
+		}
+		tot += col;
+	}
+	tot /= float(AA*AA);
+	
+	totcolor = vec4 (tot, 1.0);
+}

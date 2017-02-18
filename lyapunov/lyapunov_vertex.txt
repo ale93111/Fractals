@@ -1,0 +1,31 @@
+#version 150 core
+
+uniform float zoom;
+uniform vec2 offset;
+uniform vec2 Resolution;
+
+out vec2 initial_pos;
+out float izoom;	
+out vec2  ioffset;
+out vec2  iResolution;
+
+void main(void)
+{
+	
+	vec4 vertices[4] = vec4[4]( vec4(-1.0, -1.0, 0.5, 1.0),
+								vec4( 1.0, -1.0, 0.5, 1.0),
+								vec4( 1.0,  1.0, 0.5, 1.0),
+								vec4(-1.0,  1.0, 0.5, 1.0));
+	/*
+	vec4 vertices[4] = vec4[4]( vec4( 3.4, 2.5, 0.5, 1.0),
+								vec4( 4.0, 2.5, 0.5, 1.0),
+								vec4( 4.0, 3.4, 0.5, 1.0),
+								vec4( 3.4, 3.4, 0.5, 1.0));
+	*/
+	izoom 		= zoom;
+	ioffset		= offset;
+	iResolution = Resolution;
+	
+	initial_pos = (vertices[gl_VertexID].xy * zoom) + offset;
+	gl_Position = vertices[gl_VertexID];
+}
