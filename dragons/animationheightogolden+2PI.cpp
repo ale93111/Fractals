@@ -78,14 +78,10 @@ void screenshot(int i)
 	std::cout << "screenshot " << i << " done" << std::endl;
 }
 
-static void		mouseCB(int button, int state, int x, int y)
-{
-	if (button == GLUT_LEFT_BUTTON) 
-	{
-		if (state == GLUT_DOWN) 
-		{
-			for(int i=0; i<iterations+1; i++) 
-			{
+static void		mouseCB(int button, int state, int x, int y){
+	if (button == GLUT_LEFT_BUTTON) {
+		if (state == GLUT_DOWN) {
+			for(int i=0; i<iterations+1; i++) {
 				glClear(GL_COLOR_BUFFER_BIT);
 				glBegin(GL_POINTS);
 					ricorsione(nullx,0,i/(float)iterations);

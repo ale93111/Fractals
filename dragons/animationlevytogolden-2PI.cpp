@@ -6,9 +6,10 @@
 #define PI  3.14159265358979323846
 #define SCALA 1.5f
 
-int width=768; 
-int height=768;
-int iterations=2000;
+bool gen = false;
+int width  = 512; 
+int height = 512;
+int iterations = 100;
 
 GLdouble minX = -1.5f, maxX = 1.5f, minY = -1.5f, maxY = 1.5f; // complex plane boundaries
 
@@ -55,6 +56,25 @@ void displayMe(void){
 	}
 }	
 
+void screenshot(int i)
+{
+	npy_intp nn = 3*width*height;
+	float *data = new float[nn];
+
+	if( data ) glReadPixels(0, 0, width, height, GL_RGB, GL_FLOAT, data);
+
+	PyObject *a = PyArray_SimpleNewFromData(1,&nn,NPY_FLOAT,(void *)data);
+
+	PyObject* shape = PyTuple_New(3);
+	PyTuple_SetItem(shape, 0, PyLong_FromSize_t(height));
+	PyTuple_SetItem(shape, 1, PyLong_FromSize_t(width));
+	PyTuple_SetItem(shape, 2, PyLong_FromSize_t(3));
+	PyObject *img = PyArray_Reshape((PyArrayObject*)a,shape);
+
+	plt::imsave(img,"./animationheightogolden+2PI/"+std::to_string(i)+".png");
+
+	std::cout << "screenshot " << i << " done" << std::endl;
+}
 
 static void		mouseCB(int button, int state, int x, int y){
 	if (button == GLUT_LEFT_BUTTON) {
@@ -65,6 +85,8 @@ static void		mouseCB(int button, int state, int x, int y){
 					ricorsione(nullx,0,i/(float)iterations);
 				glEnd();
 				glFlush();
+
+				if(gen) screenshot(i);
 			}
 		}
 	}
@@ -92,7 +114,8 @@ static void		keyCB(unsigned char c, int x, int y){
 	if (c == 27) {
 		exit(0);
 	}
-	glutPostRedisplay();
+	if (c == 'p') gen = true;
+	//glutPostRedisplay();
 }
 
 
