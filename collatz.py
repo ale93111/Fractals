@@ -5,18 +5,6 @@ Spyder Editor
 This is a temporary script file.
 """
 
-from PIL import Image, ImageDraw
-
-im = Image.new(mode='RGB',size=(128,128))
-
-draw = ImageDraw.Draw(im)
-draw.line((0, 0) + im.size, fill=128)
-draw.line((0, im.size[1], im.size[0], 0), fill=128)
-#del draw
-
-# write to stdout
-#im.save(sys.stdout, "PNG")
-#%%
 import numpy as np
 
 def collatz_even(n):
@@ -45,35 +33,38 @@ class Tree(object):
             self.left.makenlist(head)
             
     def makelinelist(self,head):
-        x = self.r*np.cos(self.f)
-        y = self.r*np.sin(self.f)
         if(self.right):
-            head.linelist.append([x,y,self.right.r*np.cos(self.right.f),self.right.r*np.sin(self.right.f)])
+            head.linelist.append([self.x,self.y,self.right.x,self.right.y])
             self.right.makelinelist(head)
         if(self.left):
-            head.linelist.append([x,y,self.left.r *np.cos(self.left.f), self.left.r *np.sin(self.left.f)])
+            head.linelist.append([self.x,self.y,self.left.x ,self.left.y ])
             self.left.makelinelist(head)
             
         
-    def __init__(self, n=2,r=1,f=np.pi/2, stop=10):
+    def __init__(self, n=2,x=0,y=0,f=15/180*np.pi, stop=10):
         self.n = n
         self.nlist = []
         self.linelist = []
         self.stop = stop
-        self.r = r
+        self.x = x
+        self.y = y
         self.f = f
         #self.nlist.append(n)
 
         if(stop > 0):
             a = collatz_even(n)
-            ra,fa = sumvect(self.r,self.f,1,self.f-30/180*np.pi)
-            self.right = Tree(a,ra,fa,stop-1)
+            fa = self.f + 15/180*np.pi
+            xa = self.x + np.cos(fa)
+            ya = self.y + np.sin(fa)
+            self.right = Tree(a,xa,ya,fa,stop-1)
             
             #print("a=",a)
             b = collatz_odd(n)
-            rb,fb = sumvect(self.r,self.f,1,self.f+30/180*np.pi)
+            fb = self.f - 15/180*np.pi
+            xb = self.x + np.cos(fb)
+            yb = self.y + np.sin(fb)
             if(b>1):# and (b not in self.nlist)):
-                self.left = Tree(b,rb,fb,stop-1)
+                self.left = Tree(b,xb,yb,fb,stop-1)
                 #print("b=",b)
             else:
                 self.left = None
@@ -88,6 +79,8 @@ t = Tree(2,stop=7)
 t.makenlist(t)
 #print(t.nlist)
 t.makelinelist(t)
+print("\n len=",len(t.nlist),
+      "\n max=",np.max(t.nlist))
 #%%
 coord = np.array(t.linelist)
 coord = 100*coord
@@ -114,7 +107,11 @@ im = Image.new('RGBA', (w+50, h+50), (255, 255, 255, 0))
 draw = ImageDraw.Draw(im)
 for p in coord:
     draw.line(list(p), fill=(255,0,0,0),width=6)
+draw.rectangle([coord[0][0]-15,coord[1][0]-15,coord[0][0]+15,coord[1][0]+15],fill=(255,255,255,0))
+
 #draw.line((100,200, 150,300), fill=128)
 #im.show()
 #%%
-im.save('collatz.jpg')    
+im.rotate(180).save('collatz.jpg')    
+#%%
+prova = [ [t.nlist[j+1]] + list(coord[j]) for j in range(len(coord))]
