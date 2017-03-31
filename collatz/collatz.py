@@ -76,7 +76,7 @@ class Tree(object):
     def __repr__(self):
         return str(self.nlist)
 #%%
-t = Tree(2,stop=30)
+t = Tree(2,stop=35)
 t.makenlist(t)
 #print(t.nlist)
 t.makelinelist(t)
@@ -101,8 +101,14 @@ temp[3] = temp[3] - yoff
 temp[:4] = temp[:4] + 50 
 #for j in range(len(temp)-2):
 #    temp[j] = temp[j] + 50 
-w = int(np.max([np.max(temp[0]),np.max(temp[2])]))
-h = int(np.max([np.max(temp[1]),np.max(temp[3])])) 
+w = int(np.max([np.max(temp[0]),np.max(temp[2])]) +50)
+h = int(np.max([np.max(temp[1]),np.max(temp[3])]) +50) 
+target = 1000
+ratio = target/h
+h_new = int(h*ratio)
+w_new = int(w*ratio)
+temp[:4] = ratio*temp[:4]
+
 coord = np.transpose(temp)
 coord = np.array(coord,dtype=int)
 
@@ -112,7 +118,7 @@ from operator import itemgetter
 coord2 = sorted(coord, key=itemgetter(4), reverse=True)
 #%%
 from PIL import Image, ImageDraw
-im = Image.new('RGBA', (w+50, h+50), (0,0,0,0)) 
+im = Image.new('RGBA', (w_new, h_new), (0,0,0,0)) 
 draw = ImageDraw.Draw(im)
 
 count = 0
@@ -120,14 +126,14 @@ for j in range(coord2[0][4]):
     start = coord2[0][4]-j
     while True:
         #if coord2[count][5] < np.average(t.nlist):
-        draw.line(list(coord2[count][:4]), fill=tuple(coord2[count][-4:]),width=6)
+        draw.line(list(coord2[count][:4]), fill=tuple(coord2[count][-4:]),width=3)
         count += 1
         if count==len(coord2):
             break
         new = coord2[count][4]
         if start != new:
             break
-
+    #im = im.resize((int(w/2),int(h/2)))
     im.rotate(180).save("/home/alessandro/Documents/Fractals/collatz/gif/collatz"+str(j)+".jpg")    
 #%%
 from PIL import Image, ImageDraw
