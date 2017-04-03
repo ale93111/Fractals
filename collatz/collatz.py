@@ -6,6 +6,9 @@ This is a temporary script file.
 """
 
 import numpy as np
+import matplotlib as mpl
+from mpl_toolkits.mplot3d import Axes3D
+import matplotlib.pyplot as plt
 
 def collatz_even(n):
     return n*2
@@ -76,7 +79,8 @@ class Tree(object):
     def __repr__(self):
         return str(self.nlist)
 #%%
-t = Tree(2,stop=35)
+n = 35
+t = Tree(2,stop=n)
 t.makenlist(t)
 #print(t.nlist)
 t.makelinelist(t)
@@ -116,6 +120,7 @@ coord = np.array(coord,dtype=int)
 #%%
 from operator import itemgetter
 coord2 = sorted(coord, key=itemgetter(4), reverse=True)
+coord2t = np.transpose(coord2)
 #%%
 from PIL import Image, ImageDraw
 im = Image.new('RGBA', (w_new, h_new), (0,0,0,0)) 
@@ -134,7 +139,54 @@ for j in range(coord2[0][4]):
         if start != new:
             break
     #im = im.resize((int(w/2),int(h/2)))
-    im.rotate(180).save("/home/alessandro/Documents/Fractals/collatz/gif/collatz"+str(j)+".jpg")    
+    im.rotate(180).save("/home/alessandro/Documenti/Fractals/collatz/gif/collatz"+str(j)+".jpg")    
+#%%
+
+fig = plt.figure(figsize=(12,8))
+ax = fig.gca(projection='3d')
+ax.set_xlim(0,w_new)
+ax.set_ylim(0,h_new)
+ax.set_zlim(0,n)
+#ax.set_axis_off()
+
+count = 0
+for j in range(coord2[0][4]):
+    start = coord2[0][4]-j
+    while True:
+        #if coord2[count][5] < np.average(t.nlist):
+        c = "r" if coord2[count][6] else "b"
+        ax.plot( [coord2[count][0],coord2[count][2]],[coord2[count][1],coord2[count][3]],[n-coord2[count][4],n+1-coord2[count][4]],c)
+        #draw.line(list(coord2[count][:4]), fill=tuple(coord2[count][-4:]),width=3)
+        count += 1
+        if count==len(coord2):
+            break
+        new = coord2[count][4]
+        if start != new:
+            break
+    #im = im.resize((int(w/2),int(h/2)))
+    fig.savefig("/home/alessandro/Documenti/Fractals/collatz/gif3d/collatz"+str(j)+".jpg")    
+
+#%%
+j = n
+for angle in range(0, 36):
+    ax.view_init(30, 10*angle-50)
+    fig.savefig("/home/alessandro/Documenti/Fractals/collatz/gif3d/collatz"+str(j)+".jpg")
+    j += 1
+#%%
+fig = plt.figure()
+ax = fig.gca(projection='3d')
+
+for p in coord2:
+    c = "r" if p[6] else "b"
+    ax.plot( [p[0],p[2]],[p[1],p[3]],[35-p[4],36-p[4]],c)#, label='parametric curve')
+ax.set_xlim(0,h_new)
+ax.set_xlim(0,h_new)
+ax.set_axis_off()
+ax.view_init(30, 0)
+#ax.legend()
+#plt.show()
+#%%
+
 #%%
 from PIL import Image, ImageDraw
 im = Image.new('RGBA', (w+50, h+50), (0,0,0,0)) 

@@ -76,6 +76,10 @@ void screenshot(int i)
 	plt::imsave(img,"./animationheightogolden+2PI/"+std::to_string(i)+".png");
 
 	std::cout << "screenshot " << i << " done" << std::endl;
+
+	Py_DECREF(a);
+	Py_DECREF(img);
+	Py_DECREF(shape);
 }
 
 static void		mouseCB(int button, int state, int x, int y){
