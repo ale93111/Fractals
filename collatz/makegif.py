@@ -7,8 +7,8 @@ Created on Sat Feb 18 21:28:37 2017
 
 import imageio
 
-path = "/home/alessandro/Documents/Fractals/collatz/gif/"
-pathout = "/home/alessandro/Documents/Fractals/collatz/"
+path = "/home/alessandro/Documenti/Fractals/collatz/gif/"
+pathout = "/home/alessandro/Documenti/Fractals/collatz/"
 #%%
 n = 35
 filenames = [path+"collatz"+str(i)+".jpg" for i in range(n)]
