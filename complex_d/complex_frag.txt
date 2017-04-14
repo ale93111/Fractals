@@ -1,0 +1,62 @@
+#version 150 core
+
+in vec2 initial_pos;
+in float izoom;	
+in vec2  ioffset;
+in vec2  iResolution;
+in float iGlobalTime;
+
+out vec4 totcolor;
+
+//supersampling
+#define  AA 2
+
+const int max_iterations = 10;
+
+vec3 color = vec3(0.0); 			//RGB
+
+//Complex Exponentiation - Source: http://mathworld.wolfram.com/ComplexExponentiation.html
+vec2 powC( vec2 Z, vec2 W)
+{
+    float arg = atan(Z.y / Z.x);
+    														//press mouse to remove scale animation
+    //float a = exp( -W.y*arg )*pow( dot(Z,Z), W.x/(3.0 + ((iMouse.w>0.0)? -1.0 :cos(0.2*iGlobalTime)))); 
+    float a = exp( -W.y*arg )*pow( dot(Z,Z), W.x/2.0 ); 	//this is wihtout scaling animation
+    float b = W.x*arg + 0.5*W.y*log( dot(Z,Z) );
+    
+    return a*vec2(cos(b), sin(b));    
+} 
+
+void main(void)
+{
+    for( int jj=0; jj<AA; jj++ )
+    for( int ii=0; ii<AA; ii++ )  
+	{
+        vec2 Z = (((gl_FragCoord.yx + vec2(float(ii),float(jj))/float(AA)) / iResolution.y) * izoom) + ioffset.yx;
+    
+		vec3 col = vec3(0.0);
+    
+    	float k = abs(cos(0.2*iGlobalTime));
+    	//float k = 1.0; 		//wihtout exponentiation animation
+        //float k = 1.6180339;  //beware the golden ratio will anger the gods
+    
+        
+   		for(int i=0; i<max_iterations; i++) 
+    	{        
+        	// Z^Z^Z...20-21 times animated between odd and even exponentiation
+        	Z = powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,k*powC(Z,Z))))))))))))))))))));
+        
+        	// Z^Z^Z...64-65 times animated between odd and even exponentiation
+        	//Z = powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,powC(Z,k*powC(Z,Z))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))));
+        
+        	if( dot(Z,Z)> 0.1) break;
+    	}
+    
+    	col = vec3(smoothstep( 0.0, sqrt(3.0),  sqrt(min(3.0, abs(dot(Z,Z))) )),
+                   smoothstep( 0.0, sqrt(50.0), sqrt(min(50.0,abs(dot(Z,Z))) )),
+                   smoothstep( 0.0, sqrt(5e10), sqrt(min(5e10,abs(dot(Z,Z))) )) );
+        color += col;
+    }
+    color /= float(AA*AA);
+	totcolor = vec4( color, 1.0);
+}

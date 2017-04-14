@@ -64,7 +64,7 @@ class Tree(object):
             
             #print("a=",a)
             b = collatz_odd(n)
-            fb = self.f - 15/180*np.pi
+            fb = self.f - 15/180*np.pi*np.log(2)/np.log(3)
             xb = self.x + np.cos(fb)
             yb = self.y + np.sin(fb)
             if(b>1):# and (b not in self.nlist)):
@@ -79,7 +79,7 @@ class Tree(object):
     def __repr__(self):
         return str(self.nlist)
 #%%
-n = 35
+n = 38
 t = Tree(2,stop=n)
 t.makenlist(t)
 #print(t.nlist)
@@ -107,7 +107,7 @@ temp[:4] = temp[:4] + 50
 #    temp[j] = temp[j] + 50 
 w = int(np.max([np.max(temp[0]),np.max(temp[2])]) +50)
 h = int(np.max([np.max(temp[1]),np.max(temp[3])]) +50) 
-target = 768
+target = 1024
 ratio = target/h
 h_new = int(h*ratio)
 w_new = int(w*ratio)
