@@ -1,0 +1,7 @@
+Convert gif to webm:
+ffmpeg -i complex1.gif -c:v libvpx -crf 12 -b:v 8000K complex1.webm
+8000K -> max bitrate
+crf from 4 to 63 -> decrease to improve quality
+
+compilation flags:
+-lpython2.7 -lGL -lglut -lGLEW -std=c++11
