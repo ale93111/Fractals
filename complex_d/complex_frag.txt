@@ -19,9 +19,9 @@ vec3 color = vec3(0.0); 			//RGB
 vec2 powC( vec2 Z, vec2 W)
 {
     float arg = atan(Z.y / Z.x);
-    														//press mouse to remove scale animation
+    														
     //float a = exp( -W.y*arg )*pow( dot(Z,Z), W.x/(3.0 + ((iMouse.w>0.0)? -1.0 :cos(0.2*iGlobalTime)))); 
-    float a = exp( -W.y*arg )*pow( dot(Z,Z), W.x/2.0 ); 	//this is wihtout scaling animation
+    float a = exp( -W.y*arg )*pow( dot(Z,Z), W.x/4.0 ); 	//this is wihtout scaling animation
     float b = W.x*arg + 0.5*W.y*log( dot(Z,Z) );
     
     return a*vec2(cos(b), sin(b));    
@@ -36,7 +36,7 @@ void main(void)
     
 		vec3 col = vec3(0.0);
     
-    	float k = abs(cos(0.19634954*iGlobalTime));
+    	float k = abs(cos(0.19634954*iGlobalTime)*cos(0.19634954*iGlobalTime));
     	//float k = 1.0; 		//wihtout exponentiation animation
         //float k = 1.6180339;  //beware the golden ratio will anger the gods
     

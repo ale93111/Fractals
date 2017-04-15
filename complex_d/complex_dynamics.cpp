@@ -153,9 +153,10 @@ static void	keyFunction(unsigned char c, int x, int y)
 		case 'p':
 				  screenshot(count);
 			break;
-		case 'g':
-				  //tim += 150;
-			 	  //count++;
+		case 'o':
+				  tim += 150;
+			 	  count++;
+			 	  glutPostRedisplay();
 			break;
 		case 'q': zoom *= 1.05f;
 			break;
