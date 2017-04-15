@@ -2,6 +2,7 @@
 #include <GL/freeglut.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string>
 #include <iostream>
 
 #include "plot.h"
@@ -47,19 +48,23 @@ void startup()
 	uniforms.GlobalTime = glGetUniformLocation(program, "GlobalTime");
 }
 
+int count = 0;
+int tim = 0;
+
+void screenshot(int);
 void Draw() 
 {
 	static const GLfloat color[] = { 0.0f, 0.0f, 0.0f, 0.0f };
     glClearBufferfv(GL_COLOR, 0, color);
 
     static float t = 0.0f;
+    int Time = glutGet(GLUT_ELAPSED_TIME);
  
 	float offset[2] = { x_offset, y_offset };
 	float Resolution[2] = { width, height };
-	float GlobalTime = animation? glutGet(GLUT_ELAPSED_TIME)/1000.0f : timestop;
+	float GlobalTime = animation? tim/1000.0f/*Time/1000.0f*/ : timestop;
 
     glUseProgram(program);
-
 
     glUniform1f(uniforms.GlobalTime, GlobalTime);
 	glUniform2fv(uniforms.Resolution, 1, Resolution);
@@ -67,10 +72,33 @@ void Draw()
     glUniform1f(uniforms.zoom, zoom);
 
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-		//std::cout<<"drawarray_done"<<std::endl<<std::flush;		
 	
 	glutSwapBuffers();
-	glutPostRedisplay();
+	//glutPostRedisplay();
+}
+
+void Drawt(int Time) 
+{
+	static const GLfloat color[] = { 0.0f, 0.0f, 0.0f, 0.0f };
+    glClearBufferfv(GL_COLOR, 0, color);
+
+    static float t = 0.0f;
+
+	float offset[2] = { x_offset, y_offset };
+	float Resolution[2] = { width, height };
+	float GlobalTime = animation? Time/1000.0f : timestop;
+
+    glUseProgram(program);
+
+    glUniform1f(uniforms.GlobalTime, GlobalTime);
+	glUniform2fv(uniforms.Resolution, 1, Resolution);
+    glUniform2fv(uniforms.offset, 1, offset);
+    glUniform1f(uniforms.zoom, zoom);
+
+	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+	
+	glutSwapBuffers();
+	//glutPostRedisplay();
 }
 
 void init()
@@ -91,28 +119,27 @@ void reshape (int w, int h)
 	glutPostRedisplay(); // repaint the window
 }
 
-void screenshot()
+void screenshot(int i = 0)
 {
-	plt::init();
-
-	npy_intp nn = 4*width*height;
+	npy_intp nn = 3*width*height;
 	float *data = new float[nn];
 
-	if( data ) {
-	    glReadPixels(0, 0, width, height, GL_RGBA, GL_FLOAT, data);
-	}
+	if( data ) glReadPixels(0, 0, width, height, GL_RGB, GL_FLOAT, data);
 
 	PyObject *a = PyArray_SimpleNewFromData(1,&nn,NPY_FLOAT,(void *)data);
 
 	PyObject* shape = PyTuple_New(3);
 	PyTuple_SetItem(shape, 0, PyLong_FromSize_t(height));
 	PyTuple_SetItem(shape, 1, PyLong_FromSize_t(width));
-	PyTuple_SetItem(shape, 2, PyLong_FromSize_t(4));
+	PyTuple_SetItem(shape, 2, PyLong_FromSize_t(3));
 	PyObject *img = PyArray_Reshape((PyArrayObject*)a,shape);
 
-	plt::imsave(img,"./Complex.png");
+	plt::imsave(img,"./imgs/Complex"+std::to_string(i)+".png");
+	std::cout << "screenshot " << i << " done" << std::endl;
 
-	Py_Finalize();
+	Py_DECREF(a);
+	Py_DECREF(img);
+	Py_DECREF(shape);
 }
 
 static void	keyFunction(unsigned char c, int x, int y)
@@ -124,7 +151,11 @@ static void	keyFunction(unsigned char c, int x, int y)
 	switch (c)
 	{
 		case 'p':
-			screenshot();
+				  screenshot(count);
+			break;
+		case 'g':
+				  //tim += 150;
+			 	  //count++;
 			break;
 		case 'q': zoom *= 1.05f;
 			break;
@@ -150,13 +181,40 @@ static void	keyFunction(unsigned char c, int x, int y)
 		default:
 			break;
 	};
-	
-	glutPostRedisplay();
 }
 
+static void		mouseCB(int button, int state, int x, int y)
+{
+	if (button == GLUT_LEFT_BUTTON) 
+	{
+		if (state == GLUT_DOWN) 
+		{
+			int iterations = 200;
+			for(int i=1; i<iterations+1; i++)
+			{
+				Drawt((i*8000.0f)/iterations);
+				screenshot(i);
+			}
+			
+		}
+	}
+	else if (state == GLUT_UP) {}
+	
+	if (button == GLUT_RIGHT_BUTTON) 
+	{
+		if (state == GLUT_DOWN) 
+		{
+			Drawt(0);
+		}
+	}
+	else if (state == GLUT_UP) {}
+	
+}
 
 int main(int argc, char** argv)
 {
+	plt::init();
+
 	glutInit(&argc, argv);	// initialise glut
 	glutInitWindowSize(width, height);	// set the initial window size
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
@@ -168,9 +226,12 @@ int main(int argc, char** argv)
 	// set the function to use to draw our scene
 	glutDisplayFunc(Draw);
 	glutReshapeFunc(reshape); 
+	glutMouseFunc(mouseCB);
 	glutKeyboardFunc(keyFunction);
 	
 	glutMainLoop(); // this function runs a while loop to keep the program running.
-	
+
+	Py_Finalize();
+
 	return 0;
 }
